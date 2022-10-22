@@ -41,9 +41,9 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { optionsListApi } from '/@/api/demo/select';
   import { useDebounceFn } from '@vueuse/core';
-  import { schemas } from './jeecgComponents.data.ts';
+  import { schemas } from './jeecgComponents.data';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { BasicDragVerify } from '/@/components/Verify/index';
+  import { BasicDragVerify } from '/@/components/Verify';
 
   export default defineComponent({
     components: {
@@ -74,6 +74,7 @@
       function onSearch(value: string) {
         keyword.value = value;
       }
+      
 
       return {
         schemas,

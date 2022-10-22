@@ -40,7 +40,7 @@ export function usePopBiz(props, tableRef?) {
     getColumns: '/online/cgreport/api/getRpColumns/',
     getData: '/online/cgreport/api/getData/',
     getQueryInfo: '/online/cgreport/api/getQueryInfo/',
-    export: '/online/cgreport/api/exportXls/',
+    export: '/online/cgreport/api/exportManySheetXls/',
   });
   //已选择的值
   const checkedKeys = ref<Array<string | number>>([]);
@@ -289,11 +289,12 @@ export function usePopBiz(props, tableRef?) {
     for (let column of columns) {
       if (column.isTotal === '1') {
         arr.push(column.dataIndex!);
-        if (column.children && column.children.length > 0) {
-          let subArray = getNeedSumColumns(column.children);
-          if (subArray.length > 0) {
-            arr.push(...subArray);
-          }
+      }
+        // 【VUEN-1569】【online报表】合计无效
+      if (column.children && column.children.length > 0) {
+        let subArray = getNeedSumColumns(column.children);
+        if (subArray.length > 0) {
+          arr.push(...subArray);
         }
       }
     }
@@ -445,6 +446,14 @@ export function usePopBiz(props, tableRef?) {
     const { handleExportXls } = useMethods();
     let url = `${configUrl.export}${cgRpConfigId.value}`;
     let params = getQueryParams(); //查询条件
+    // 【VUEN-1568】如果选中了某些行，就只导出选中的行
+    let keys = unref(checkedKeys);
+    if (keys.length > 0) {
+      params['force_id'] = keys
+        .map((i) => (getRowByKey(i) as any)?.id)
+        .filter((i) => i != null && i !== '')
+        .join(',');
+    }
     handleExportXls(title.value, url, params);
   }
 
@@ -503,6 +512,8 @@ export function usePopBiz(props, tableRef?) {
         //查询条件加载后再请求数据
         if (data) {
           setDataSource(data);
+          //传递路由参数和动态参数，不生效，
+          loadData(1);
         } else {
           //没有传递data时查询数据
           loadData(1);
@@ -522,6 +533,7 @@ export function usePopBiz(props, tableRef?) {
       pagination.current = 1;
     }
     let params = getQueryParams(); //查询条件
+    console.log('params', params);
     loading.value = true;
     let url = `${configUrl.getData}${unref(cgRpConfigId)}`;
     //缓存key
@@ -588,6 +600,11 @@ export function usePopBiz(props, tableRef?) {
       }
       queryParam.value = { ...queryTemp };
     }
+    // 合并路由参数
+    if (props.routeQuery) {
+      queryParam.value = Object.assign(queryParam.value, props.routeQuery);
+    }
+
     let dynamicTemp = {};
     if (props.param) {
       Object.keys(props.param).map((key) => {

@@ -1,6 +1,14 @@
 JEECG BOOT 低代码开发平台（Vue3前端）
 ===============
-当前最新版本： 1.3.0（发布时间：20220627）
+当前最新版本： 3.4.3（发布时间：2022-10-18）
+
+[![AUR](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/zhangdaiscott/jeecg-boot/blob/master/LICENSE)
+[![](https://img.shields.io/badge/Author-北京国炬软件-orange.svg)](http://www.jeecg.com)
+[![](https://img.shields.io/badge/Blog-官方博客-blue.svg)](https://my.oschina.net/jeecg)
+[![](https://img.shields.io/badge/version-3.4.3-brightgreen.svg)](https://github.com/zhangdaiscott/jeecg-boot)
+[![GitHub stars](https://img.shields.io/github/stars/zhangdaiscott/jeecg-boot.svg?style=social&label=Stars)](https://github.com/zhangdaiscott/jeecg-boot)
+[![GitHub forks](https://img.shields.io/github/forks/zhangdaiscott/jeecg-boot.svg?style=social&label=Fork)](https://github.com/zhangdaiscott/jeecg-boot)
+
 
 
 ## 简介
@@ -9,18 +17,20 @@ JeecgBoot-Vue3采用 Vue3.0、Vite、 Ant-Design-Vue、TypeScript 等新技术�
  
 > 强大的代码生成器让前后端代码一键生成! JeecgBoot引领低代码开发模式(OnlineCoding-> 代码生成-> 手工MERGE)， 帮助解决Java项目70%的重复工作，让开发更多关注业务。既能快速提高效率，节省成本，同时又不失灵活性
 
-##  项目说明
+##  项目源码
+
+| 仓库 | 后端源码 |前端 Vue3版 | 前端 Vue2版  |
+|-|-|-|-|
+| Github | [jeecg-boot](https://github.com/jeecgboot/jeecg-boot) | [jeecgboot-vue3](https://github.com/jeecgboot/jeecgboot-vue3)  | [ant-design-vue-jeecg](https://github.com/jeecgboot/ant-design-vue-jeecg)  |
+| 码云 | [jeecg-boot](https://gitee.com/jeecg/jeecg-boot) | [jeecgboot-vue3](https://gitee.com/jeecg/jeecgboot-vue3)  | [ant-design-vue-jeecg](https://gitee.com/jeecg/ant-design-vue-jeecg)   |
 
 
-| 项目名                | 说明                     | 传送门                                                                                                                          |
-|--------------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| `jeecgboot-vue3` | Vue3版前端代码 | [Github](https://github.com/jeecgboot/jeecgboot-vue3)   &nbsp;&nbsp;  [Gitee](https://gitee.com/jeecg/jeecgboot-vue3) |
-| `jeecg-boot`    | JAVA后台（支持微服务）        | [Github](https://github.com/jeecgboot/jeecg-boot) &nbsp;&nbsp;    [Gitee](https://gitee.com/jeecg/jeecg-boot)  |
-| `ant-design-vue-jeecg`  |Vue2版前端代码（默认与主项目一起）       |        |
+##### 项目说明
 
-
-
-> 入门必看>>[切换Vue3路由](http://vue3.jeecg.com/2671576)
+| 项目名                | 说明                     | 
+|--------------------|------------------------|
+| `jeecgboot-vue3` | Vue3版前端代码 | 
+| `jeecg-boot`    | JAVA后台（支持微服务）        | 
 
 
 ## 技术文档
@@ -33,6 +43,8 @@ JeecgBoot-Vue3采用 Vue3.0、Vite、 Ant-Design-Vue、TypeScript 等新技术�
 
 ## 安装与使用
 
+
+ > 环境要求: Node.js版本要求12.x以上，且不能为13.x版本，这里推荐14.x及以上。
 
   
 - Get the project code
@@ -51,8 +63,15 @@ yarn install
 ```
 
 - 配置后台接口地址
+>[info] 说明：把`http://localhost:8080/jeecg-boot` 替换成自己地址即可，其他不用改。
+
+配置文件：.env.development
+
 ```bash
-.env.development
+VITE_GLOB_API_URL=/jeecgboot
+VITE_PROXY = [["/jeecgboot","http://localhost:8080/jeecg-boot"],["/upload",
+"http://localhost:3300/upload"]]
+VITE_GLOB_DOMAIN_URL=http://localhost:8080/jeecg-boot
 ```
 
 - run
@@ -69,8 +88,76 @@ yarn build
 ```
 
 
+## Docker镜像启动前端(单体模式)
 
+- host设置
 
+```bash
+127.0.0.1 jeecg-boot-system
+127.0.0.1 jeecg-boot-gateway
+```
+>注意： 需要把`127.0.0.1`替换成真实IP 比如`192.`开头,不然后端不通。
+
+- 下载项目
+
+```bash
+git clone https://github.com/jeecgboot/jeecgboot-vue3.git
+
+cd jeecgboot-vue3
+
+```
+- 修改后台域名
+.env.production
+
+```bash
+VITE_GLOB_API_URL=/jeecgboot
+VITE_GLOB_DOMAIN_URL=http://jeecg-boot-system:8080/jeecg-boot
+```
+后台单体启动 [见此文档](http://doc.jeecg.com/2043889)
+
+- 编译项目
+
+```bash
+yarn install
+
+yarn build
+```
+
+- 启动容器
+```bash
+docker build -t jeecgboot-vue3 .
+docker run --name jeecgboot-vue3-nginx -p 80:80 -d jeecgboot-vue3
+```
+
+- 访问前台
+
+http://localhost
+
+## Docker镜像启动前端(微服务模式)
+> 这里只写与单体的区别步骤
+
+-  区别1. 修改后台域名
+.env.production
+
+```bash
+VITE_GLOB_API_URL=/jeecgboot
+VITE_GLOB_DOMAIN_URL=http://jeecg-boot-gateway:9999
+```
+
+后台微服务启动 [见此文档](http://doc.jeecg.com/2656147)
+
+- 区别2. 修改Dockerfile文件
+
+```bash
+- 把`http://jeecg-boot-system:8080/jeecg-boot`替换成 `http://jeecg-boot-gateway:9999`
+- 把`jeecg-boot-system`替换成 `jeecg-boot-gateway`
+```
+
+-  其他与单体模式一样
+
+```bash
+镜像需要重现构建，最好把单体的镜像删掉，重新构建docker镜像。
+```
 
 
 ## 功能模块
@@ -182,11 +269,11 @@ yarn build
 │  ├─Online在线表单 - 功能已开放
 │  ├─Online代码生成器 - 功能已开放
 │  ├─Online在线报表 - 功能已开放
-│  ├─Online在线图表(商业功能)
-│  ├─Online图表模板配置(商业功能)
-│  ├─Online布局设计(商业功能)
+│  ├─Online在线图表(未开源)
+│  ├─Online图表模板配置(未开源)
+│  ├─Online布局设计(未开源)
 │  ├─多数据源管理 - 功能已开放
-│─流程模块功能 (商业功能)
+│─流程模块功能 (未开源)
 │  ├─流程设计器
 │  ├─表单设计器
 │  ├─大屏设计器
@@ -201,7 +288,7 @@ yarn build
 │  └─我的抄送
 │  └─流程委派、抄送、跳转
 │  └─。。。
-│─OA办公组件 (商业功能)
+│─OA办公组件 (未开源)
 │  ├─更多功能
 │  └─。。。
 └─其他模块 (暂不开源)
